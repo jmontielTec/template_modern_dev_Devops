@@ -1,0 +1,28 @@
+name: Deploy Azure
+ 
+# Este flujo de trabajo se ejecuta manualmente
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+ 
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+ 
+   
+      - name: Deploy Bicep template for prod
+        uses: azure/arm-deploy@v1
+        with:
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION }}
+          resourceGroupName: ${{ vars.AZURE_RG }}
+          template: ./config/main.bicep
+          parameters: prefixName=${{ vars.AZURE_PREFIX }} location=EastUS
+        continue-on-error: true
